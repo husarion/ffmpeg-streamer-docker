@@ -1,4 +1,7 @@
-FROM husarnet/ros:humble-ros-base
+ARG ROS_DISTRO=iron
+ARG PREFIX=
+
+FROM husarnet/ros:${PREFIX}${ROS_DISTRO}-ros-base
 
 WORKDIR /ros2_ws
 
@@ -8,10 +11,11 @@ RUN apt update && \
     rm -rf /etc/ros/rosdep/sources.list.d/20-default.list && \
 	rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO && \
-    rosdep install --from-paths src --ignore-src -r -y \
+    rosdep install --from-paths src --ignore-src -r -y && \
     . /opt/ros/$ROS_DISTRO/setup.sh && \
-    colcon build
-
+    colcon build && \
+    echo $(cat /ros2_ws/src/ffmpeg_image_transport/package.xml | grep '<version>' | sed -r 's/.*<version>([0-9]+.[0-9]+.[0-9]+)<\/version>/\1/g') >> /version.txt
+    
 COPY params.yaml /
 COPY run.sh /
 
