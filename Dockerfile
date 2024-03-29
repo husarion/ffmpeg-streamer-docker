@@ -34,4 +34,6 @@ ENV TYPE=ENCODER
 ENV RAW_TOPIC=/camera/image_raw
 ENV FFMPEG_TOPIC=/camera/image_raw/ffmpeg
 
+RUN sed -i 's|# <additional-user-commands>|source "/ros2_ws2/install/setup.bash"|' /ros_entrypoint.sh
+
 CMD ["/run.sh"]
