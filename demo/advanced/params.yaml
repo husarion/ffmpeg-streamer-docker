@@ -7,5 +7,5 @@
     #   $ ffmpeg -h encoder=hevc_nvenc
     ffmpeg_image_transport:
       encoding: hevc_nvenc
-      # preset: llhp
-      # tune: ll
+      preset: llhp
+      tune: ll
