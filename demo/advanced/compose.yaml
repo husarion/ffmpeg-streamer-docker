@@ -1,0 +1,60 @@
+services:
+
+  camera:
+    build: .
+    devices:
+      - /dev/video0:/dev/video0
+    command: >
+      ros2 run v4l2_camera v4l2_camera_node
+        --ros-args 
+        -p video_device:=/dev/video0
+        -p pixel_format:=YUYV
+        -p output_encoding:=yuv422_yuy2
+        -p image_size:="[640,480]" 
+        -p camera_frame_id:=camera_optical_link
+
+  rviz:
+    image: husarion/rviz2:humble-11.2.6
+    runtime: nvidia
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./default.rviz:/root/.rviz2/default.rviz
+    environment:
+      - DISPLAY=${DISPLAY:?err}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+
+  ffmpeg_compressor:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    runtime: nvidia
+    # ros2 run image_transport republish raw in:=/image_raw ffmpeg out/ffmpeg:=/image_raw/ffmpeg_best_effort
+    volumes:
+      - ./params.yaml:/params.yaml
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    command: >
+      ros2 run image_transport republish 
+      raw ffmpeg 
+      --ros-args --remap in:=/image_raw 
+      --ros-args --remap out/ffmpeg:=/image_raw/ffmpeg_best_effort
+      --params-file /params.yaml
+
+  ffmpeg_decompressor:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    runtime: nvidia
+    volumes:
+      - ./params.yaml:/params.yaml
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    command: >
+      ros2 run image_transport republish 
+      ffmpeg raw 
+      --ros-args --remap in/ffmpeg:=/image_raw/ffmpeg_best_effort
+      --ros-args --remap out:=/image_raw/decompressed
+      --params-file /params.yaml

@@ -1,0 +1,11 @@
+---
+/image_republisher:
+  ros__parameters:
+    # list encoders:
+    #   $ ffmpeg -encoders
+    # list available presets:
+    #   $ ffmpeg -h encoder=hevc_nvenc
+    ffmpeg_image_transport:
+      encoding: libx264
+      preset: ultrafast
+      tune: zerolatency
