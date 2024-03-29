@@ -1,6 +1,6 @@
 # ffmpeg-streamer-docker
 
-FFMPEG image encoder/decoder with best effor QoS optimized for video streaming.
+FFMPEG image encoder/decoder for ROS 2 with best effor QoS optimized for video streaming.
 
 ## Qucick start
 
