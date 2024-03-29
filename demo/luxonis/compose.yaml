@@ -1,0 +1,43 @@
+services:
+
+  luxonis:
+    image: husarion/depthai:humble-2.8.1-20240127
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+      - ./oak-1-low-bandwidth.yaml:/params.yaml
+    device_cgroup_rules:
+      - 'c 189:* rmw'
+    command: >
+      ros2 launch depthai_ros_driver camera.launch.py
+        params_file:=/params.yaml
+
+  rviz2:
+    image: husarion/rviz2:humble-11.2.6
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./default.rviz:/root/.rviz2/default.rviz
+    environment:
+      - DISPLAY=${DISPLAY:?err}
+      - LIBGL_ALWAYS_SOFTWARE=1
+
+  ffmpeg_compressor:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    command: >
+      ros2 run image_transport republish 
+      raw ffmpeg 
+      --ros-args --remap in:=/oak/rgb/image_raw
+      --ros-args --remap out/ffmpeg:=/image_raw/ffmpeg_best_effort
+      --params-file /params.yaml
+
+  ffmpeg_decompressor:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    command: >
+      ros2 run image_transport republish 
+      ffmpeg raw 
+      --ros-args --remap in/ffmpeg:=/image_raw/ffmpeg_best_effort
+      --ros-args --remap out:=/image_raw/decompressed
+      --params-file /params.yaml
