@@ -23,18 +23,14 @@ services:
       - LIBGL_ALWAYS_SOFTWARE=1
 
   ffmpeg_compressor:
-    build:
-      context: ../..
-      dockerfile: Dockerfile
+    image: husarion/ffmpeg-streamer:humble-1.0.0-20240329
     environment:
       - TYPE=ENCODER
       - RAW_TOPIC=/image_raw
       - FFMPEG_TOPIC=/image_raw/ffmpeg_best_effort
 
   ffmpeg_decompressor:
-    build:
-      context: ../..
-      dockerfile: Dockerfile
+    image: husarion/ffmpeg-streamer:humble-1.0.0-20240329
     environment:
       - TYPE=DECODER
       - RAW_TOPIC=/image_raw/ffmpeg_decompressed
